@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bknigge/go_kraken/rest"
+	"github.com/BenKnigge/go_kraken/rest"
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"

@@ -1,4 +1,4 @@
-module github.com/bknigge/go_kraken
+module github.com/BenKnigge/go_kraken
 
 go 1.19
 
