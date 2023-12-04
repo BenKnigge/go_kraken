@@ -291,15 +291,16 @@ type Trade struct {
 	Side      string
 	OrderType string
 	Misc      string
+	tradeID   float64
 }
 
-// UnmarshalJSON -
+// UnmarshalJSON
 func (item *Trade) UnmarshalJSON(buf []byte) error {
 	var tmp []interface{}
 	if err := json.Unmarshal(buf, &tmp); err != nil {
 		return err
 	}
-	if g, e := len(tmp), 6; g != e {
+	if g, e := len(tmp), 7; g != e {
 		return fmt.Errorf("wrong number of fields in CloseLevel: %d != %d", g, e)
 	}
 
@@ -338,6 +339,9 @@ func (item *Trade) UnmarshalJSON(buf []byte) error {
 		return errors.New("invalid misc type")
 	}
 	item.Misc = misc
+
+	tradeId, ok := tmp[6].(float64)
+	item.tradeID = tradeId
 	return nil
 }
 
@@ -417,8 +421,46 @@ type TradeResponse struct {
 	XZECZUSD []Trade
 }
 
+type Trades []Trade
+
 // TradeResponse2 allows for the return of pairs that have not yet been defined
-type TradeResponse2 map[string]interface{}
+type TradeResponse2 struct {
+	Key    string `json:"key"`
+	Last   string `json:"last"`
+	Trades `json:"trades"`
+}
+
+func (t *TradeResponse2) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" || string(data) == `""` {
+		return nil
+	}
+	m := make(map[string]interface{})
+	err := json.Unmarshal(data, &m)
+	if err != nil {
+		return err
+	}
+	for k, v := range m {
+		if k == "last" {
+			t.Last = v.(string)
+		} else {
+			t.Key = k
+			items := v.([]interface{})
+			for _, item := range items {
+				bytes, err2 := json.Marshal(item)
+				if err2 != nil {
+					return err2
+				}
+				var oneTrade Trade
+				err = json.Unmarshal(bytes, &oneTrade)
+				if err != nil {
+					return err
+				}
+				t.Trades = append(t.Trades, oneTrade)
+			}
+		}
+	}
+	return nil
+}
 
 // Spread - structure of spread data
 type Spread struct {
