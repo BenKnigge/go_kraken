@@ -291,7 +291,7 @@ type Trade struct {
 	Side      string
 	OrderType string
 	Misc      string
-	tradeID   float64
+	TradeID   float64
 }
 
 // UnmarshalJSON
@@ -341,7 +341,7 @@ func (item *Trade) UnmarshalJSON(buf []byte) error {
 	item.Misc = misc
 
 	tradeId, ok := tmp[6].(float64)
-	item.tradeID = tradeId
+	item.TradeID = tradeId
 	return nil
 }
 
