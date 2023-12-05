@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/shopspring/decimal"
+	"github.com/ericlagergren/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -125,14 +125,14 @@ func TestKraken_GetAccountBalances(t *testing.T) {
 		name    string
 		err     error
 		resp    *http.Response
-		want    map[string]decimal.Decimal
+		want    map[string]*decimal.Big
 		wantErr bool
 	}{
 		{
 			name:    "Kraken returns error",
 			err:     ErrSomething,
 			resp:    &http.Response{},
-			want:    make(map[string]decimal.Decimal),
+			want:    make(map[string]*decimal.Big),
 			wantErr: true,
 		}, {
 			name: "Get Account Balances",
@@ -141,10 +141,10 @@ func TestKraken_GetAccountBalances(t *testing.T) {
 				StatusCode: 200,
 				Body:       io.NopCloser(bytes.NewReader(balancesJSON)),
 			},
-			want: map[string]decimal.Decimal{
-				"BSV":  decimal.NewFromFloat(0.0000053898),
-				"ZUSD": decimal.NewFromFloat(435.9135),
-				"USDT": decimal.NewFromInt(2),
+			want: map[string]*decimal.Big{
+				"BSV":  decimal.New(53898, 10),
+				"ZUSD": decimal.New(4359135, 4),   // 435.9135
+				"USDT": decimal.New(200000000, 8), // 2
 			},
 			wantErr: false,
 		},

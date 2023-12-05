@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/shopspring/decimal"
+	"github.com/ericlagergren/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -312,40 +312,40 @@ func TestKraken_Ticker(t *testing.T) {
 			want: map[string]Ticker{
 				"ADACAD": {
 					Ask: Level{
-						Price:          decimal.NewFromFloat(0.108312),
-						WholeLotVolume: decimal.NewFromFloat(6418.),
-						Volume:         decimal.NewFromFloat(6418.000),
+						Price:          decimal.New(108312, 6),
+						WholeLotVolume: decimal.New(6418, 0),
+						Volume:         decimal.New(6418000, 3),
 					},
 					Bid: Level{
-						Price:          decimal.NewFromFloat(0.090125),
-						WholeLotVolume: decimal.NewFromFloat(2688.),
-						Volume:         decimal.NewFromFloat(2688.000),
+						Price:          decimal.New(90125, 6),
+						WholeLotVolume: decimal.New(2688, 0),
+						Volume:         decimal.New(2688000, 3),
 					},
 					Close: CloseLevel{
-						Price:     decimal.NewFromFloat(0.090043),
-						LotVolume: decimal.NewFromFloat(0.00000091),
+						Price:     decimal.New(90043, 6),
+						LotVolume: decimal.New(91, 8),
 					},
 					Volume: CloseLevel{
-						Price:     decimal.NewFromFloat(115805.23341809),
-						LotVolume: decimal.NewFromFloat(136512.79974015),
+						Price:     decimal.New(11580523341809, 8),
+						LotVolume: decimal.New(13651279974015, 8),
 					},
 					VolumeAveragePrice: CloseLevel{
-						Price:     decimal.NewFromFloat(0.102010),
-						LotVolume: decimal.NewFromFloat(0.100786),
+						Price:     decimal.New(102010, 6),
+						LotVolume: decimal.New(100786, 6),
 					},
 					Trades: TimeLevel{
 						Today:       54,
 						Last24Hours: 67,
 					},
 					Low: CloseLevel{
-						Price:     decimal.NewFromFloat(0.090000),
-						LotVolume: decimal.NewFromFloat(0.090000),
+						Price:     decimal.New(90000, 6),
+						LotVolume: decimal.New(90000, 6),
 					},
 					High: CloseLevel{
-						Price:     decimal.NewFromFloat(0.109000),
-						LotVolume: decimal.NewFromFloat(0.109000),
+						Price:     decimal.New(109000, 6),
+						LotVolume: decimal.New(109000, 6),
 					},
-					OpeningPrice: decimal.NewFromFloat(0.093911),
+					OpeningPrice: decimal.New(93911, 6),
 				},
 			},
 			wantErr: false,
@@ -410,12 +410,12 @@ func TestKraken_Candles(t *testing.T) {
 		Candles: map[string][]Candle{
 			"ADACAD": {{
 				Time:      1554179640,
-				Open:      decimal.NewFromFloat(0.0005000),
-				High:      decimal.NewFromFloat(0.0005000),
-				Low:       decimal.NewFromFloat(0.0005000),
-				Close:     decimal.NewFromFloat(0.0005000),
-				VolumeWAP: decimal.NewFromFloat(0.0000000),
-				Volume:    decimal.NewFromFloat(0.0000000),
+				Open:      decimal.New(5000, 7), //0.0005000
+				High:      decimal.New(5000, 7),
+				Low:       decimal.New(5000, 7),
+				Close:     decimal.New(5000, 7),
+				VolumeWAP: decimal.New(0, 7),
+				Volume:    decimal.New(0, 8),
 				Count:     0,
 			}},
 		},
@@ -601,7 +601,7 @@ func TestKraken_GetOrderBook(t *testing.T) {
 }
 
 func TestKraken_GetTrades(t *testing.T) {
-	json := []byte(`{"error":[],"result":{"ADACAD":[["0.093280","2968.26413227",1553959154.2509,"s","l",""]], "last": "1554221914617956627"}}`)
+	json := []byte(`{"error":[],"result":{"ADACAD":[["0.093280","2968.26413227",1553959154.2509,"s","l","", 1]], "last": "1554221914617956627"}}`)
 	type args struct {
 		pair  string
 		since int64
@@ -645,6 +645,7 @@ func TestKraken_GetTrades(t *testing.T) {
 						Side:      "s",
 						OrderType: "l",
 						Misc:      "",
+						TradeID:   1,
 					},
 				},
 			},

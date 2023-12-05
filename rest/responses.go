@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/shopspring/decimal"
+	"github.com/ericlagergren/decimal"
 )
 
 func getFloat64FromStr(value interface{}) (float64, error) {
@@ -59,36 +59,36 @@ type Asset struct {
 
 // AssetPair - asset pair information
 type AssetPair struct {
-	Altname           string          `json:"altname"`
-	AssetClassBase    string          `json:"aclass_base"`
-	Base              string          `json:"base"`
-	AssetClassQuote   string          `json:"aclass_quote"`
-	Quote             string          `json:"quote"`
-	Lot               string          `json:"lot"`
-	PairDecimals      int             `json:"pair_decimals"`
-	LotDecimals       int             `json:"lot_decimals"`
-	LotMultiplier     int             `json:"lot_multiplier"`
-	LeverageBuy       []int           `json:"leverage_buy"`
-	LeverageSell      []int           `json:"leverage_sell"`
-	Fees              [][]float64     `json:"fees"`
-	FeesMaker         [][]float64     `json:"fees_maker"`
-	FeeVolumeCurrency string          `json:"fee_volume_currency"`
-	MarginCall        int             `json:"margin_call"`
-	MarginStop        int             `json:"margin_stop"`
-	WSName            string          `json:"wsname"`
-	OrderMin          decimal.Decimal `json:"ordermin"`
+	Altname           string       `json:"altname"`
+	AssetClassBase    string       `json:"aclass_base"`
+	Base              string       `json:"base"`
+	AssetClassQuote   string       `json:"aclass_quote"`
+	Quote             string       `json:"quote"`
+	Lot               string       `json:"lot"`
+	PairDecimals      int          `json:"pair_decimals"`
+	LotDecimals       int          `json:"lot_decimals"`
+	LotMultiplier     int          `json:"lot_multiplier"`
+	LeverageBuy       []int        `json:"leverage_buy"`
+	LeverageSell      []int        `json:"leverage_sell"`
+	Fees              [][]float64  `json:"fees"`
+	FeesMaker         [][]float64  `json:"fees_maker"`
+	FeeVolumeCurrency string       `json:"fee_volume_currency"`
+	MarginCall        int          `json:"margin_call"`
+	MarginStop        int          `json:"margin_stop"`
+	WSName            string       `json:"wsname"`
+	OrderMin          *decimal.Big `json:"ordermin"`
 }
 
 // Level - ticker structure for Ask and Bid
 type Level struct {
-	Price          decimal.Decimal
-	WholeLotVolume decimal.Decimal
-	Volume         decimal.Decimal
+	Price          *decimal.Big
+	WholeLotVolume *decimal.Big
+	Volume         *decimal.Big
 }
 
 // UnmarshalJSON -
 func (item *Level) UnmarshalJSON(buf []byte) error {
-	var tmp []decimal.Decimal
+	var tmp []*decimal.Big
 	if err := json.Unmarshal(buf, &tmp); err != nil {
 		return err
 	}
@@ -124,13 +124,13 @@ func (item *TimeLevel) UnmarshalJSON(buf []byte) error {
 
 // CloseLevel - ticker structure for Close
 type CloseLevel struct {
-	Price     decimal.Decimal
-	LotVolume decimal.Decimal
+	Price     *decimal.Big
+	LotVolume *decimal.Big
 }
 
 // UnmarshalJSON -
 func (item *CloseLevel) UnmarshalJSON(buf []byte) error {
-	var tmp []decimal.Decimal
+	var tmp []*decimal.Big
 	if err := json.Unmarshal(buf, &tmp); err != nil {
 		return err
 	}
@@ -154,18 +154,18 @@ type Ticker struct {
 	Trades             TimeLevel  `json:"t"`
 	Low                CloseLevel `json:"l"`
 	High               CloseLevel `json:"h"`
-	OpeningPrice       decimal.Decimal
+	OpeningPrice       *decimal.Big
 }
 
 // Candle - OHLC item
 type Candle struct {
 	Time      int64
-	Open      decimal.Decimal
-	High      decimal.Decimal
-	Low       decimal.Decimal
-	Close     decimal.Decimal
-	VolumeWAP decimal.Decimal
-	Volume    decimal.Decimal
+	Open      *decimal.Big
+	High      *decimal.Big
+	Low       *decimal.Big
+	Close     *decimal.Big
+	VolumeWAP *decimal.Big
+	Volume    *decimal.Big
 	Count     int64
 }
 
@@ -196,42 +196,44 @@ func (item *OHLCResponse) UnmarshalJSON(buf []byte) error {
 		for idx, c := range items {
 			candle := c.([]interface{})
 
-			ts, err := getTimestamp(candle[0])
+			ts, err2 := getTimestamp(candle[0])
+			if err2 != nil {
+				continue
+			}
+			var open, high, low, close2, vwap, vol decimal.Big
+
+			err = open.UnmarshalText([]byte(candle[1].(string)))
 			if err != nil {
 				continue
 			}
-			open, err := decimal.NewFromString(candle[1].(string))
+			err = high.UnmarshalText([]byte(candle[2].(string)))
 			if err != nil {
 				continue
 			}
-			high, err := decimal.NewFromString(candle[2].(string))
+			err = low.UnmarshalText([]byte(candle[3].(string)))
 			if err != nil {
 				continue
 			}
-			low, err := decimal.NewFromString(candle[3].(string))
+			err = close2.UnmarshalText([]byte(candle[4].(string)))
 			if err != nil {
 				continue
 			}
-			close, err := decimal.NewFromString(candle[4].(string))
+			err = vwap.UnmarshalText([]byte(candle[5].(string)))
 			if err != nil {
 				continue
 			}
-			vwap, err := decimal.NewFromString(candle[5].(string))
-			if err != nil {
-				continue
-			}
-			vol, err := decimal.NewFromString(candle[6].(string))
+			err = vol.UnmarshalText([]byte(candle[6].(string)))
 			if err != nil {
 				continue
 			}
 			item.Candles[k][idx] = Candle{
 				Time:      ts,
-				Open:      open,
-				High:      high,
-				Low:       low,
-				Close:     close,
-				VolumeWAP: vwap,
-				Volume:    vol,
+				Open:      &open,
+				High:      &high,
+				Low:       &low,
+				Close:     &close2,
+				VolumeWAP: &vwap,
+				Volume:    &vol,
 				Count:     int64(candle[7].(float64)),
 			}
 		}

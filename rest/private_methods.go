@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/shopspring/decimal"
+	"github.com/ericlagergren/decimal"
 )
 
 // GetAccountBalances - methods returns account balances
-func (api *Kraken) GetAccountBalances() (map[string]decimal.Decimal, error) {
-	response := make(map[string]decimal.Decimal)
+func (api *Kraken) GetAccountBalances() (map[string]*decimal.Big, error) {
+	response := make(map[string]*decimal.Big)
 	if err := api.request("Balance", true, nil, &response); err != nil {
 		return response, err
 	}

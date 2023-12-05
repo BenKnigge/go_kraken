@@ -2,16 +2,18 @@ package websocket
 
 import (
 	"bytes"
+	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/shopspring/decimal"
+	"github.com/ericlagergren/decimal"
 )
 
 type orderBookLevel struct {
-	Price  decimal.Decimal
-	Volume decimal.Decimal
+	Price  *decimal.Big
+	Volume *decimal.Big
 }
 
 type byPrice []orderBookLevel
@@ -41,8 +43,8 @@ type OrderBookSide struct {
 	m               map[string]orderBookLevel
 	sorted          []orderBookLevel
 	depth           int
-	pricePrecision  int32
-	volumePrecision int32
+	pricePrecision  int
+	volumePrecision int
 	isAsk           bool
 
 	mx *sync.RWMutex
@@ -53,11 +55,16 @@ func newOrderBookSide(depth, pricePrecision, volumePrecision int, isAsk bool) *O
 		m:               make(map[string]orderBookLevel),
 		sorted:          make([]orderBookLevel, 0),
 		depth:           depth,
-		pricePrecision:  int32(pricePrecision),
-		volumePrecision: int32(volumePrecision),
+		pricePrecision:  pricePrecision,
+		volumePrecision: volumePrecision,
 		isAsk:           isAsk,
 		mx:              new(sync.RWMutex),
 	}
+}
+
+func stringFixed(big *decimal.Big, precision int) string {
+	fmtStr := "%." + strconv.Itoa(precision) + "f"
+	return fmt.Sprintf(fmtStr, big)
 }
 
 func (o *OrderBookSide) applyUpdate(upd OrderBookItem) error {
@@ -66,16 +73,26 @@ func (o *OrderBookSide) applyUpdate(upd OrderBookItem) error {
 		return err
 	}
 
-	price := decimal.RequireFromString(upd.Price.String())
-	key := price.StringFixed(o.pricePrecision)
+	price := decimal.WithPrecision(o.pricePrecision)
+	err = price.UnmarshalText([]byte(upd.Price.String()))
+	if err != nil {
+		return err
+	}
+
+	key := stringFixed(price, o.pricePrecision)
 
 	o.mx.Lock()
 	if flValue == 0 {
 		delete(o.m, key)
 	} else {
+		v := &decimal.Big{}
+		err = v.UnmarshalText([]byte(upd.Price.String()))
+		if err != nil {
+			return err
+		}
 		o.m[key] = orderBookLevel{
 			Price:  price,
-			Volume: decimal.RequireFromString(upd.Volume.String()),
+			Volume: v,
 		}
 	}
 	o.mx.Unlock()
@@ -92,7 +109,7 @@ func (o *OrderBookSide) applyUpdates(updates []OrderBookItem) error {
 	o.mx.Lock()
 	levels := newOrderBookLevels(o.m, o.isAsk)
 	for _, level := range levels[o.depth:] {
-		delete(o.m, level.Price.StringFixed(o.pricePrecision))
+		delete(o.m, stringFixed(level.Price, o.pricePrecision))
 	}
 	o.sorted = levels[:o.depth]
 	o.mx.Unlock()
@@ -101,20 +118,20 @@ func (o *OrderBookSide) applyUpdates(updates []OrderBookItem) error {
 }
 
 // Get - receives volume by price. If not exists returns false
-func (o *OrderBookSide) Get(price decimal.Decimal) (decimal.Decimal, bool) {
+func (o *OrderBookSide) Get(price *decimal.Big) (*decimal.Big, bool) {
 	o.mx.RLock()
 	defer o.mx.RUnlock()
 
-	key := price.StringFixed(o.pricePrecision)
+	key := stringFixed(price, o.pricePrecision)
 	level, ok := o.m[key]
 	if !ok {
-		return decimal.Zero, ok
+		return decimal.New(0, 0), ok
 	}
 	return level.Volume, ok
 }
 
 // Range - ranges by order book side from best price to depth
-func (o *OrderBookSide) Range(handler func(price, volume decimal.Decimal) error) error {
+func (o *OrderBookSide) Range(handler func(price, volume *decimal.Big) error) error {
 	o.mx.RLock()
 	defer o.mx.RUnlock()
 
@@ -127,12 +144,12 @@ func (o *OrderBookSide) Range(handler func(price, volume decimal.Decimal) error)
 }
 
 // Best - returns best price and volume at this price. If order book is not initialized it returns Zero
-func (o *OrderBookSide) Best() (decimal.Decimal, decimal.Decimal) {
+func (o *OrderBookSide) Best() (*decimal.Big, *decimal.Big) {
 	o.mx.RLock()
 	defer o.mx.RUnlock()
 
 	if len(o.sorted) == 0 {
-		return decimal.Zero, decimal.Zero
+		return decimal.New(0, 0), decimal.New(0, 0)
 	}
 	return o.sorted[0].Price, o.sorted[0].Volume
 }
@@ -143,12 +160,12 @@ func (o *OrderBookSide) checksum() []byte {
 
 	var str bytes.Buffer
 	for _, level := range o.sorted {
-		price := level.Price.StringFixed(o.pricePrecision)
+		price := stringFixed(level.Price, o.pricePrecision)
 		price = strings.Replace(price, ".", "", 1)
 		price = strings.TrimLeft(price, "0")
 		str.WriteString(price)
 
-		volume := level.Volume.StringFixed(o.volumePrecision)
+		volume := stringFixed(level.Volume, o.volumePrecision)
 		volume = strings.Replace(volume, ".", "", 1)
 		volume = strings.TrimLeft(volume, "0")
 		str.WriteString(volume)
@@ -165,13 +182,13 @@ func (o *OrderBookSide) String() string {
 	for i := range o.sorted {
 		str.WriteByte('\t')
 		if o.pricePrecision > 0 {
-			str.WriteString(o.sorted[i].Price.StringFixed(o.pricePrecision))
+			str.WriteString(stringFixed(o.sorted[i].Price, o.pricePrecision))
 		} else {
 			str.WriteString(o.sorted[i].Price.String())
 		}
 		str.WriteString(" [ ")
 		if o.volumePrecision > 0 {
-			str.WriteString(o.sorted[i].Volume.StringFixed(o.volumePrecision))
+			str.WriteString(stringFixed(o.sorted[i].Volume, o.volumePrecision))
 		} else {
 			str.WriteString(o.sorted[i].Volume.String())
 		}

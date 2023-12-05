@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/shopspring/decimal"
+	"github.com/ericlagergren/decimal"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -133,33 +133,33 @@ func TestLevel_UnmarshalJSON(t *testing.T) {
 			buf:     []byte(`[123, 123, 123]`),
 			wantErr: false,
 			result: &Level{
-				Price:          decimal.NewFromInt(123),
-				WholeLotVolume: decimal.NewFromInt(123),
-				Volume:         decimal.NewFromInt(123),
+				Price:          decimal.New(123, 0),
+				WholeLotVolume: decimal.New(123, 0),
+				Volume:         decimal.New(123, 0),
 			},
 		}, {
 			buf:     []byte(`["123.0", 123, 123]`),
 			wantErr: false,
 			result: &Level{
-				Price:          decimal.NewFromInt(123),
-				WholeLotVolume: decimal.NewFromInt(123),
-				Volume:         decimal.NewFromInt(123),
+				Price:          decimal.New(1230, 1),
+				WholeLotVolume: decimal.New(123, 0),
+				Volume:         decimal.New(123, 0),
 			},
 		}, {
 			buf:     []byte(`["123.0", "124.0", 123]`),
 			wantErr: false,
 			result: &Level{
-				Price:          decimal.NewFromInt(123),
-				WholeLotVolume: decimal.NewFromInt(124),
-				Volume:         decimal.NewFromInt(123),
+				Price:          decimal.New(1230, 1),
+				WholeLotVolume: decimal.New(1240, 1),
+				Volume:         decimal.New(123, 0),
 			},
 		}, {
 			buf:     []byte(`["123.0", "124.0", "125.0"]`),
 			wantErr: false,
 			result: &Level{
-				Price:          decimal.NewFromInt(123),
-				WholeLotVolume: decimal.NewFromInt(124),
-				Volume:         decimal.NewFromInt(125),
+				Price:          decimal.New(1230, 1),
+				WholeLotVolume: decimal.New(1240, 1),
+				Volume:         decimal.New(1250, 1),
 			},
 		},
 	}
@@ -248,22 +248,22 @@ func TestCloseLevel_UnmarshalJSON(t *testing.T) {
 			buf:     []byte(`[123, 123]`),
 			wantErr: false,
 			result: &CloseLevel{
-				Price:     decimal.NewFromInt(123),
-				LotVolume: decimal.NewFromInt(123),
+				Price:     decimal.New(123, 0),
+				LotVolume: decimal.New(123, 0),
 			},
 		}, {
 			buf:     []byte(`["123.0", 123]`),
 			wantErr: false,
 			result: &CloseLevel{
-				Price:     decimal.NewFromInt(123),
-				LotVolume: decimal.NewFromInt(123),
+				Price:     decimal.New(1230, 1),
+				LotVolume: decimal.New(123, 0),
 			},
 		}, {
 			buf:     []byte(`["123.0", "124.0"]`),
 			wantErr: false,
 			result: &CloseLevel{
-				Price:     decimal.NewFromInt(123),
-				LotVolume: decimal.NewFromInt(124),
+				Price:     decimal.New(1230, 1),
+				LotVolume: decimal.New(1240, 1),
 			},
 		},
 	}
