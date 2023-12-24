@@ -347,92 +347,16 @@ func (item *Trade) UnmarshalJSON(buf []byte) error {
 	return nil
 }
 
-// TradeResponse - all pairs in trade response
-type TradeResponse struct {
-	Last     string `json:"last"`
-	ADACAD   []Trade
-	ADAETH   []Trade
-	ADAEUR   []Trade
-	ADAUSD   []Trade
-	ADAXBT   []Trade
-	BCHEUR   []Trade
-	BCHUSD   []Trade
-	BCHXBT   []Trade
-	DASHEUR  []Trade
-	DASHUSD  []Trade
-	DASHXBT  []Trade
-	EOSETH   []Trade
-	EOSEUR   []Trade
-	EOSUSD   []Trade
-	EOSXBT   []Trade
-	GNOETH   []Trade
-	GNOEUR   []Trade
-	GNOUSD   []Trade
-	GNOXBT   []Trade
-	QTUMCAD  []Trade
-	QTUMETH  []Trade
-	QTUMEUR  []Trade
-	QTUMUSD  []Trade
-	QTUMXBT  []Trade
-	USDTZUSD []Trade
-	XETCXETH []Trade
-	XETCXXBT []Trade
-	XETCZEUR []Trade
-	XETCZUSD []Trade
-	XETHXXBT []Trade
-	XETHZCAD []Trade
-	XETHZEUR []Trade
-	XETHZGBP []Trade
-	XETHZJPY []Trade
-	XETHZUSD []Trade
-	XICNXETH []Trade
-	XICNXXBT []Trade
-	XLTCXXBT []Trade
-	XLTCZEUR []Trade
-	XLTCZUSD []Trade
-	XMLNXETH []Trade
-	XMLNXXBT []Trade
-	XREPXETH []Trade
-	XREPXXBT []Trade
-	XREPZEUR []Trade
-	XREPZUSD []Trade
-	XXBTZCAD []Trade
-	XXBTZEUR []Trade
-	XXBTZGBP []Trade
-	XXBTZJPY []Trade
-	XXBTZUSD []Trade
-	XXDGXXBT []Trade
-	XXLMXXBT []Trade
-	XXLMZEUR []Trade
-	XXLMZUSD []Trade
-	XXMRXXBT []Trade
-	XXMRZEUR []Trade
-	XXMRZUSD []Trade
-	XXRPXXBT []Trade
-	XXRPZCAD []Trade
-	XXRPZEUR []Trade
-	XXRPZJPY []Trade
-	XXRPZUSD []Trade
-	XTZCAD   []Trade
-	XTZETH   []Trade
-	XTZEUR   []Trade
-	XTZUSD   []Trade
-	XTZXBT   []Trade
-	XZECXXBT []Trade
-	XZECZEUR []Trade
-	XZECZUSD []Trade
-}
-
 type Trades []Trade
 
-// TradeResponse2 allows for the return of pairs that have not yet been defined
-type TradeResponse2 struct {
+// TradeResponse allows for the return of pairs that have not yet been defined
+type TradeResponse struct {
 	Key    string `json:"key"`
 	Last   string `json:"last"`
 	Trades `json:"trades"`
 }
 
-func (t *TradeResponse2) UnmarshalJSON(data []byte) error {
+func (t *TradeResponse) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" || string(data) == `""` {
 		return nil
 	}

@@ -636,8 +636,9 @@ func TestKraken_GetTrades(t *testing.T) {
 				since: 2,
 			},
 			want: TradeResponse{
+				Key:  "ADACAD",
 				Last: "1554221914617956627",
-				ADACAD: []Trade{
+				Trades: []Trade{
 					{
 						Price:     0.093280,
 						Volume:    2968.26413227,
@@ -660,7 +661,7 @@ func TestKraken_GetTrades(t *testing.T) {
 					Response: tt.resp,
 				},
 			}
-			got, err := api.GetTrades(tt.args.pair, tt.args.since)
+			got, err := api.GetTrades(tt.args.pair, tt.args.since, 1000)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Kraken.GetTrades() error = %v, wantErr %v", err, tt.wantErr)
 				return

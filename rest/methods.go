@@ -98,22 +98,7 @@ func (api *Kraken) GetOrderBook(pair string, depth int64) (map[string]OrderBook,
 }
 
 // GetTrades - returns trades on pair from since date
-func (api *Kraken) GetTrades(pair string, since int64) (TradeResponse, error) {
-	data := url.Values{
-		"pair": {pair},
-	}
-	if since > 0 {
-		data.Add("since", strconv.FormatInt(since, 10))
-	}
-	response := TradeResponse{}
-	if err := api.request("Trades", false, data, &response); err != nil {
-		return response, err
-	}
-	return response, nil
-}
-
-// GetTrades2 - returns trades on pair from since date
-func (api *Kraken) GetTrades2(pair string, since int64, count int64) (TradeResponse2, error) {
+func (api *Kraken) GetTrades(pair string, since int64, count int64) (TradeResponse, error) {
 	data := url.Values{
 		"pair": {pair},
 	}
@@ -125,7 +110,7 @@ func (api *Kraken) GetTrades2(pair string, since int64, count int64) (TradeRespo
 	}
 	data.Add("since", strconv.FormatInt(count, 10))
 
-	response := TradeResponse2{}
+	response := TradeResponse{}
 	if err := api.request("Trades", false, data, &response); err != nil {
 		return response, err
 	}
