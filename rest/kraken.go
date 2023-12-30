@@ -8,13 +8,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // clientInterface - for testing purpose
@@ -129,6 +129,11 @@ func (api *Kraken) request(method string, isPrivate bool, data url.Values, retTy
 	if err != nil {
 		return errors.Wrap(err, "error during request execution")
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err = Body.Close()
+		if err != nil {
+			log.Warnf("*Kraken request error : %s", err)
+		}
+	}(resp.Body)
 	return api.parseResponse(resp, retType)
 }

@@ -59,24 +59,30 @@ type Asset struct {
 
 // AssetPair - asset pair information
 type AssetPair struct {
-	Altname           string       `json:"altname"`
-	AssetClassBase    string       `json:"aclass_base"`
-	Base              string       `json:"base"`
-	AssetClassQuote   string       `json:"aclass_quote"`
-	Quote             string       `json:"quote"`
-	Lot               string       `json:"lot"`
-	PairDecimals      int          `json:"pair_decimals"`
-	LotDecimals       int          `json:"lot_decimals"`
-	LotMultiplier     int          `json:"lot_multiplier"`
-	LeverageBuy       []int        `json:"leverage_buy"`
-	LeverageSell      []int        `json:"leverage_sell"`
-	Fees              [][]float64  `json:"fees"`
-	FeesMaker         [][]float64  `json:"fees_maker"`
-	FeeVolumeCurrency string       `json:"fee_volume_currency"`
-	MarginCall        int          `json:"margin_call"`
-	MarginStop        int          `json:"margin_stop"`
-	WSName            string       `json:"wsname"`
-	OrderMin          *decimal.Big `json:"ordermin"`
+	Altname            string       `json:"altname"`
+	AssetClassBase     string       `json:"aclass_base"`
+	Base               string       `json:"base"`
+	AssetClassQuote    string       `json:"aclass_quote"`
+	Quote              string       `json:"quote"`
+	Lot                string       `json:"lot"`
+	PairDecimals       int          `json:"pair_decimals"`
+	LotDecimals        int          `json:"lot_decimals"`
+	LotMultiplier      int          `json:"lot_multiplier"`
+	LeverageBuy        []int        `json:"leverage_buy"`
+	LeverageSell       []int        `json:"leverage_sell"`
+	Fees               [][]float64  `json:"fees"`
+	FeesMaker          [][]float64  `json:"fees_maker"`
+	FeeVolumeCurrency  string       `json:"fee_volume_currency"`
+	MarginCall         int          `json:"margin_call"`
+	MarginStop         int          `json:"margin_stop"`
+	WSName             string       `json:"wsname"`
+	OrderMin           *decimal.Big `json:"ordermin"`
+	CostDecimals       int          `json:"cost_decimals"`
+	CostMin            *decimal.Big `json:"costmin"`
+	TickSize           *decimal.Big `json:"tick_size"`
+	Status             string       `json:"status"` // online, cancel_only, post_only, limit_only, reduce_only
+	LongPositionLimit  int          `json:"long_position_limit"`
+	ShortPositionLimit int          `json:"short_position_limit"`
 }
 
 // Level - ticker structure for Ask and Bid
