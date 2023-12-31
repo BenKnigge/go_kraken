@@ -61,7 +61,7 @@ func (api *Kraken) getSign(requestURL string, data url.Values) (string, error) {
 	return base64.StdEncoding.EncodeToString(hmacData), nil
 }
 
-func (api *Kraken) prepareRequest(method string, isPrivate bool, data url.Values) (*http.Request, error) {
+func (api *Kraken) prepareRequest(method string, isPrivate bool, data url.Values, httpMethod string) (*http.Request, error) {
 	if data == nil {
 		data = url.Values{}
 	}
@@ -72,7 +72,10 @@ func (api *Kraken) prepareRequest(method string, isPrivate bool, data url.Values
 	} else {
 		requestURL = fmt.Sprintf("%s/%s/public/%s", APIUrl, APIVersion, method)
 	}
-	req, err := http.NewRequest("POST", requestURL, strings.NewReader(data.Encode()))
+	if httpMethod == "" {
+		httpMethod = "POST"
+	}
+	req, err := http.NewRequest(httpMethod, requestURL, strings.NewReader(data.Encode()))
 	if err != nil {
 		return nil, errors.Wrap(err, "error during request creation")
 	}
@@ -120,8 +123,8 @@ func (api *Kraken) parseResponse(response *http.Response, retType interface{}) e
 	return nil
 }
 
-func (api *Kraken) request(method string, isPrivate bool, data url.Values, retType interface{}) error {
-	req, err := api.prepareRequest(method, isPrivate, data)
+func (api *Kraken) request(method string, isPrivate bool, data url.Values, retType interface{}, httpMethod string) error {
+	req, err := api.prepareRequest(method, isPrivate, data, httpMethod)
 	if err != nil {
 		return err
 	}

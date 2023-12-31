@@ -13,7 +13,7 @@ import (
 // GetAccountBalances - methods returns account balances
 func (api *Kraken) GetAccountBalances() (map[string]*decimal.Big, error) {
 	response := make(map[string]*decimal.Big)
-	if err := api.request("Balance", true, nil, &response); err != nil {
+	if err := api.request("Balance", true, nil, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -27,7 +27,7 @@ func (api *Kraken) GetTradeBalance(baseAsset string) (TradeBalanceResponse, erro
 	}
 
 	response := TradeBalanceResponse{}
-	if err := api.request("TradeBalance", true, data, &response); err != nil {
+	if err := api.request("TradeBalance", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -44,7 +44,7 @@ func (api *Kraken) GetOpenOrders(needTrades bool, userRef string) (OpenOrdersRes
 	}
 
 	response := OpenOrdersResponse{}
-	if err := api.request("OpenOrders", true, data, &response); err != nil {
+	if err := api.request("OpenOrders", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -67,7 +67,7 @@ func (api *Kraken) GetClosedOrders(needTrades bool, userRef string, start int64,
 	}
 
 	response := ClosedOrdersResponse{}
-	if err := api.request("ClosedOrders", true, data, &response); err != nil {
+	if err := api.request("ClosedOrders", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -93,7 +93,7 @@ func (api *Kraken) QueryOrders(needTrades bool, userRef string, txIDs ...string)
 	}
 
 	response := make(map[string]OrderInfo)
-	if err := api.request("QueryOrders", true, data, &response); err != nil {
+	if err := api.request("QueryOrders", true, data, &response, "POST"); err != nil {
 		return nil, err
 	}
 	return response, nil
@@ -117,7 +117,7 @@ func (api *Kraken) GetTradesHistory(tradeType string, needTrades bool, start int
 		data.Set("end", strconv.FormatInt(end, 10))
 	}
 	response := TradesHistoryResponse{}
-	if err := api.request("TradesHistory", true, data, &response); err != nil {
+	if err := api.request("TradesHistory", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -133,7 +133,7 @@ func (api *Kraken) GetDepositMethods(assets ...string) ([]DepositMethods, error)
 	}
 
 	response := make([]DepositMethods, 0)
-	if err := api.request("DepositMethods", true, data, &response); err != nil {
+	if err := api.request("DepositMethods", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -150,7 +150,7 @@ func (api *Kraken) GetDepositStatus(method string, assets ...string) ([]DepositS
 		data.Add("method", method)
 	}
 	response := make([]DepositStatuses, 0)
-	if err := api.request("DepositStatus", true, data, &response); err != nil {
+	if err := api.request("DepositStatus", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -164,7 +164,7 @@ func (api *Kraken) WithdrawInfo(asset string, key string, amount float64) (respo
 		"amount": {strconv.FormatFloat(amount, 'f', 8, 64)},
 	}
 
-	if err = api.request("WithdrawInfo", true, data, &response); err != nil {
+	if err = api.request("WithdrawInfo", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -178,7 +178,7 @@ func (api *Kraken) WithdrawFunds(asset string, key string, amount float64) (resp
 		"amount": {strconv.FormatFloat(amount, 'f', 8, 64)},
 	}
 
-	if err = api.request("Withdraw", true, data, &response); err != nil {
+	if err = api.request("Withdraw", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -197,7 +197,7 @@ func (api *Kraken) GetWithdrawStatus(asset string, method string) ([]WithdrawSta
 	}
 
 	response := make([]WithdrawStatus, 0)
-	if err := api.request("WithdrawStatus", true, data, &response); err != nil {
+	if err := api.request("WithdrawStatus", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -215,7 +215,7 @@ func (api *Kraken) QueryTrades(trades bool, txIDs ...string) (map[string]Private
 	data.Set("txid", strings.Join(txIDs, ","))
 
 	response := make(map[string]PrivateTrade)
-	if err := api.request("QueryTrades", true, data, &response); err != nil {
+	if err := api.request("QueryTrades", true, data, &response, "POST"); err != nil {
 		return nil, err
 	}
 	return response, nil
@@ -233,7 +233,7 @@ func (api *Kraken) GetOpenPositions(docalcs bool, txIDs ...string) (map[string]P
 	data.Set("txid", strings.Join(txIDs, ","))
 
 	response := make(map[string]Position)
-	if err := api.request("OpenPositions", true, data, &response); err != nil {
+	if err := api.request("OpenPositions", true, data, &response, "POST"); err != nil {
 		return nil, err
 	}
 	return response, nil
@@ -256,7 +256,7 @@ func (api *Kraken) GetLedgersInfo(ledgerType string, start int64, end int64, ass
 		data.Set("assets", strings.Join(assets, ","))
 	}
 
-	if err := api.request("Ledgers", true, data, &response); err != nil {
+	if err := api.request("Ledgers", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -274,7 +274,7 @@ func (api *Kraken) QueryLedgers(ledgerIds ...string) (map[string]Ledger, error) 
 	data.Set("id", strings.Join(ledgerIds, ","))
 
 	response := make(map[string]Ledger)
-	if err := api.request("QueryLedgers", true, data, &response); err != nil {
+	if err := api.request("QueryLedgers", true, data, &response, "POST"); err != nil {
 		return nil, err
 	}
 	return response, nil
@@ -292,7 +292,7 @@ func (api *Kraken) GetTradeVolume(needFeeInfo bool, pairs ...string) (TradeVolum
 	}
 	data.Set("pair", strings.Join(pairs, ","))
 
-	if err := api.request("TradeVolume", true, data, &response); err != nil {
+	if err := api.request("TradeVolume", true, data, &response, "POST"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -321,7 +321,7 @@ func (api *Kraken) AddOrder(pair string, side string, orderType string, volume f
 		}
 	}
 
-	err = api.request("AddOrder", true, data, &response)
+	err = api.request("AddOrder", true, data, &response, "POST")
 	return
 }
 
@@ -346,7 +346,7 @@ func (api *Kraken) EditOrder(orderId string, pair string, args map[string]interf
 		}
 	}
 
-	err = api.request("EditOrder", true, data, &response)
+	err = api.request("EditOrder", true, data, &response, "POST")
 	return
 }
 
@@ -355,12 +355,12 @@ func (api *Kraken) Cancel(orderID string) (response CancelResponse, err error) {
 	data := url.Values{
 		"txid": {orderID},
 	}
-	err = api.request("CancelOrder", true, data, &response)
+	err = api.request("CancelOrder", true, data, &response, "POST")
 	return
 }
 
 // GetWebSocketsToken - WebSockets authentication
 func (api *Kraken) GetWebSocketsToken() (response GetWebSocketTokenResponse, err error) {
-	err = api.request("GetWebSocketsToken", true, nil, &response)
+	err = api.request("GetWebSocketsToken", true, nil, &response, "POST")
 	return
 }

@@ -217,7 +217,7 @@ func TestKraken_prepareRequest(t *testing.T) {
 				s = invalid
 			}
 			api := New(tt.fields.key, s)
-			got, err := api.prepareRequest(tt.args.method, tt.args.isPrivate, tt.args.data)
+			got, err := api.prepareRequest(tt.args.method, tt.args.isPrivate, tt.args.data, "POST")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Kraken.prepareRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -367,7 +367,7 @@ func TestKraken_request(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			api := New(tt.fields.key, invalid)
-			err := api.request(tt.args.method, tt.args.isPrivate, tt.args.data, tt.args.retType)
+			err := api.request(tt.args.method, tt.args.isPrivate, tt.args.data, tt.args.retType, "POST")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Kraken.request() error = %v, wantErr %v", err, tt.wantErr)
 				return

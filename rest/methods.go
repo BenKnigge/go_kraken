@@ -10,7 +10,7 @@ import (
 // Time - Gets server time. Note: This is to aid in approximating the skew time between the server and client.
 func (api *Kraken) Time() (TimeResponse, error) {
 	response := TimeResponse{}
-	if err := api.request("Time", false, nil, &response); err != nil {
+	if err := api.request("Time", false, nil, &response, "GET"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -26,7 +26,7 @@ func (api *Kraken) Assets(assets ...string) (map[string]Asset, error) {
 		data = nil
 	}
 	response := make(map[string]Asset)
-	if err := api.request("Assets", false, data, &response); err != nil {
+	if err := api.request("Assets", false, data, &response, "GET"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -42,7 +42,7 @@ func (api *Kraken) AssetPairs(pairs ...string) (map[string]AssetPair, error) {
 		data = nil
 	}
 	response := make(map[string]AssetPair)
-	if err := api.request("AssetPairs", false, data, &response); err != nil {
+	if err := api.request("AssetPairs", false, data, &response, "GET"); err != nil {
 		return nil, err
 	}
 	return response, nil
@@ -60,7 +60,7 @@ func (api *Kraken) Ticker(pairs ...string) (map[string]Ticker, error) {
 		return nil, errors.New("you need to set pairs on Ticker request")
 	}
 	response := make(map[string]Ticker)
-	if err := api.request("Ticker", false, data, &response); err != nil {
+	if err := api.request("Ticker", false, data, &response, "GET"); err != nil {
 		return nil, err
 	}
 	return response, nil
@@ -78,7 +78,7 @@ func (api *Kraken) Candles(pair string, interval int64, since int64) (OHLCRespon
 		data.Set("interval", strconv.FormatInt(interval, 10))
 	}
 	response := OHLCResponse{}
-	if err := api.request("OHLC", false, data, &response); err != nil {
+	if err := api.request("OHLC", false, data, &response, "GET"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -91,7 +91,7 @@ func (api *Kraken) GetOrderBook(pair string, depth int64) (map[string]OrderBook,
 		"count": {strconv.FormatInt(depth, 10)},
 	}
 	response := make(map[string]OrderBook)
-	if err := api.request("Depth", false, data, &response); err != nil {
+	if err := api.request("Depth", false, data, &response, "GET"); err != nil {
 		return nil, err
 	}
 	return response, nil
@@ -111,7 +111,7 @@ func (api *Kraken) GetTrades(pair string, since int64, count int64) (TradeRespon
 	data.Add("since", strconv.FormatInt(count, 10))
 
 	response := TradeResponse{}
-	if err := api.request("Trades", false, data, &response); err != nil {
+	if err := api.request("Trades", false, data, &response, "GET"); err != nil {
 		return response, err
 	}
 	return response, nil
@@ -126,7 +126,7 @@ func (api *Kraken) GetSpread(pair string, since int64) (SpreadResponse, error) {
 		data.Add("since", strconv.FormatInt(since, 10))
 	}
 	response := SpreadResponse{}
-	if err := api.request("Spread", false, data, &response); err != nil {
+	if err := api.request("Spread", false, data, &response, "GET"); err != nil {
 		return response, err
 	}
 	return response, nil
