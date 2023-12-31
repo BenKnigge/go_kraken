@@ -2,11 +2,13 @@ package rest
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestNew(t *testing.T) {
@@ -217,7 +219,9 @@ func TestKraken_prepareRequest(t *testing.T) {
 				s = invalid
 			}
 			api := New(tt.fields.key, s)
-			got, err := api.prepareRequest(tt.args.method, tt.args.isPrivate, tt.args.data, "POST")
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+			defer cancel()
+			got, err := api.prepareRequest(ctx, tt.args.method, tt.args.isPrivate, tt.args.data, "POST")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Kraken.prepareRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return

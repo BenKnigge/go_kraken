@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"crypto/sha512"
@@ -61,7 +62,8 @@ func (api *Kraken) getSign(requestURL string, data url.Values) (string, error) {
 	return base64.StdEncoding.EncodeToString(hmacData), nil
 }
 
-func (api *Kraken) prepareRequest(method string, isPrivate bool, data url.Values, httpMethod string) (*http.Request, error) {
+func (api *Kraken) prepareRequest(ctx context.Context, method string, isPrivate bool,
+	data url.Values, httpMethod string) (*http.Request, error) {
 	if data == nil {
 		data = url.Values{}
 	}
@@ -75,11 +77,12 @@ func (api *Kraken) prepareRequest(method string, isPrivate bool, data url.Values
 	var req *http.Request
 	var err error
 	if httpMethod == "GET" {
-		requestURL = fmt.Sprintf("%s?%s", requestURL, data.Encode())
-		req, err = http.NewRequest(httpMethod, requestURL, nil)
+		if len(data) > 0 {
+			requestURL = fmt.Sprintf("%s?%s", requestURL, data.Encode())
+		}
+		req, err = http.NewRequestWithContext(ctx, method, requestURL, nil)
 	} else {
-		// TODO : need to use a context here
-		req, err = http.NewRequest(httpMethod, requestURL, strings.NewReader(data.Encode()))
+		req, err = http.NewRequestWithContext(ctx, httpMethod, requestURL, strings.NewReader(data.Encode()))
 	}
 	if err != nil {
 		return nil, errors.Wrap(err, "error during request creation")
@@ -129,7 +132,9 @@ func (api *Kraken) parseResponse(response *http.Response, retType interface{}) e
 }
 
 func (api *Kraken) request(method string, isPrivate bool, data url.Values, retType interface{}, httpMethod string) error {
-	req, err := api.prepareRequest(method, isPrivate, data, httpMethod)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+	req, err := api.prepareRequest(ctx, method, isPrivate, data, httpMethod)
 	if err != nil {
 		return err
 	}
