@@ -72,10 +72,15 @@ func (api *Kraken) prepareRequest(method string, isPrivate bool, data url.Values
 	} else {
 		requestURL = fmt.Sprintf("%s/%s/public/%s", APIUrl, APIVersion, method)
 	}
-	if httpMethod == "" {
-		httpMethod = "POST"
+	var req *http.Request
+	var err error
+	if httpMethod == "GET" {
+		requestURL = fmt.Sprintf("%s?%s", requestURL, data.Encode())
+		req, err = http.NewRequest(httpMethod, requestURL, nil)
+	} else {
+		// TODO : need to use a context here
+		req, err = http.NewRequest(httpMethod, requestURL, strings.NewReader(data.Encode()))
 	}
-	req, err := http.NewRequest(httpMethod, requestURL, strings.NewReader(data.Encode()))
 	if err != nil {
 		return nil, errors.Wrap(err, "error during request creation")
 	}
