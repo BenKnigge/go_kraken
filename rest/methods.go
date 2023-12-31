@@ -108,7 +108,7 @@ func (api *Kraken) GetTrades(pair string, since int64, count int64) (TradeRespon
 	if count == 0 || count > 1000 {
 		count = 1000
 	}
-	data.Add("since", strconv.FormatInt(count, 10))
+	data.Add("count", strconv.FormatInt(count, 10))
 
 	response := TradeResponse{}
 	if err := api.request("Trades", false, data, &response, "GET"); err != nil {
