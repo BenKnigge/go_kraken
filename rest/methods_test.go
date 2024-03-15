@@ -604,7 +604,7 @@ func TestKraken_GetTrades(t *testing.T) {
 	json := []byte(`{"error":[],"result":{"ADACAD":[["0.093280","2968.26413227",1553959154.2509,"s","l","", 1]], "last": "1554221914617956627"}}`)
 	type args struct {
 		pair  string
-		since int64
+		since float64
 	}
 	tests := []struct {
 		name    string
@@ -620,7 +620,7 @@ func TestKraken_GetTrades(t *testing.T) {
 			resp: &http.Response{},
 			args: args{
 				pair:  "ADACAD",
-				since: 2,
+				since: 2.0,
 			},
 			want:    TradeResponse{},
 			wantErr: true,

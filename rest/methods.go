@@ -98,12 +98,12 @@ func (api *Kraken) GetOrderBook(pair string, depth int64) (map[string]OrderBook,
 }
 
 // GetTrades - returns trades on pair from since date
-func (api *Kraken) GetTrades(pair string, since int64, count int64) (TradeResponse, error) {
+func (api *Kraken) GetTrades(pair string, since float64, count int64) (TradeResponse, error) {
 	data := url.Values{
 		"pair": {pair},
 	}
 	if since > 0 {
-		data.Add("since", strconv.FormatInt(since, 10))
+		data.Add("since", strconv.FormatFloat(since, 'f', 7, 64))
 	}
 	if count == 0 || count > 1000 {
 		count = 1000
