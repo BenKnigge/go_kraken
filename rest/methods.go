@@ -97,7 +97,7 @@ func (api *Kraken) GetOrderBook(pair string, depth int64) (map[string]OrderBook,
 	return response, nil
 }
 
-// GetTrades - returns trades on pair from since date
+// GetTrades - returns trades on pair from since date, since can be either a unix timestamp or unix nano timestamp
 func (api *Kraken) GetTrades(pair string, since int64, count int64) (TradeResponse, error) {
 	data := url.Values{
 		"pair": {pair},
